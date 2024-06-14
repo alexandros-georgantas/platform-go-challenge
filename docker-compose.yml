@@ -6,6 +6,10 @@ services:
       dockerfile: Dockerfile-development
     ports:
       - ${CLIENT_PORT:-4000}:8080
+    volumes:
+      - ./packages/client/src:/home/node/app/src
+      - ./packages/client/public:/home/node/app/public
+      - ./packages/client/vite.config.ts:/home/node/app/vite.config.ts
 
   server:
     restart: unless-stopped
