@@ -1,0 +1,29 @@
+services:
+  client:
+    restart: unless-stopped
+    build:
+      context: ./packages/client
+      dockerfile: Dockerfile-development
+    ports:
+      - ${CLIENT_PORT:-4000}:8080
+
+  server:
+    restart: unless-stopped
+    build:
+      context: ./packages/server
+      dockerfile: Dockerfile
+    depends_on:
+      - db
+    # entrypoint: []
+    # command: []
+    ports:
+      - ${SERVER_PORT:-3000}:3000
+
+  db:
+    image: postgres:16.3-alpine
+    ports:
+      - 5432:5432
+    environment:
+      - POSTGRES_DB=${POSTGRES_DB:-gwi_dev}
+      - POSTGRES_USER=${POSTGRES_USER:-gwi_dev_user}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-dev_user_password}
