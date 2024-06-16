@@ -31,3 +31,5 @@ services:
       - POSTGRES_DB=${DB_NAME:-gwi_dev}
       - POSTGRES_USER=${DB_USER:-gwi_dev_user}
       - POSTGRES_PASSWORD=${DB_PASSWORD:-dev_user_password}
+    volumes:
+      - ./scripts/init_db.sql:/docker-entrypoint-initdb.d/init_db.sql
