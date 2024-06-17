@@ -16,20 +16,37 @@ services:
     build:
       context: ./packages/server
       dockerfile: Dockerfile
+
     depends_on:
-      - db
+      db:
+        condition: service_healthy
+    environment:
+      - DB_HOST=db
+      - DB_PORT=5432
+      - DB_NAME=${DB_NAME:-gwi_dev}
+      - DB_USERNAME=${DB_USERNAME:-gwi_dev_user}
+      - DB_PASSWORD=${DB_PASSWORD:-dev_user_password}
     # entrypoint: []
-    # command: []
+    command: "make watch"
     ports:
       - ${SERVER_PORT:-3000}:3000
+    volumes:
+      - ./packages/server/cmd:/home/go/server/cmd
+      - ./packages/server/internal:/home/go/server/internal
 
   db:
     image: postgres:16.3-alpine
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
     ports:
-      - ${DB_PORT:-5432}:5432
+      - ${DB_PORT:-5433}:5432
     environment:
       - POSTGRES_DB=${DB_NAME:-gwi_dev}
-      - POSTGRES_USER=${DB_USER:-gwi_dev_user}
+      - POSTGRES_USER=${DB_USERNAME:-gwi_dev_user}
       - POSTGRES_PASSWORD=${DB_PASSWORD:-dev_user_password}
     volumes:
+      # - postgres-db:/var/lib/postgresql/data
       - ./scripts/init_db.sql:/docker-entrypoint-initdb.d/init_db.sql

@@ -8,4 +8,5 @@ engine
 bin/
 *.out
 tmp_app/
+tmp
 .env

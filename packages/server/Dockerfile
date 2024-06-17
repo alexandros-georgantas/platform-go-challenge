@@ -1,26 +1,13 @@
 # Builder
-FROM golang:1.20.7-alpine3.17 as builder
+FROM golang:1.22.4-alpine3.20 as builder
 
 RUN apk update && apk upgrade && \
-    apk --update add git make bash build-base
+    apk --update add git make bash
 
-WORKDIR /app
+WORKDIR /home/go/server
+
+RUN go install github.com/air-verse/air@latest
 
 COPY . .
 
-RUN make build
-
-# Distribution
-FROM alpine:latest
-
-RUN apk update && apk upgrade && \
-    apk --update --no-cache add tzdata && \
-    mkdir /app 
-
-WORKDIR /app 
-
-EXPOSE 9090
-
-COPY --from=builder /app/engine /app/
-
-CMD /app/engine
+RUN go mod tidy
