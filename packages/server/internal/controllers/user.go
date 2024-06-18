@@ -1,60 +1,65 @@
 package controllers
 
-// import (
-// 	"net/http"
+import (
+	"net/http"
 
-// 	"github.com/gin-gonic/gin"
-// )
+	"github.com/alexandros-georgantas/platform-go-challenge/internal/serializers"
+	"github.com/alexandros-georgantas/platform-go-challenge/internal/services"
+	"github.com/gin-gonic/gin"
+)
 
-// type UserController interface {
-// 	SignUp() gin.HandlerFunc
-// 	Login() gin.HandlerFunc
-// }
+func SignUp(c *gin.Context) {
+	var su serializers.SignUpUser
+	err := c.BindJSON(&su)
 
-// type usersController struct {
-// 	userService services.UserService
-// }
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": "your request is wrong",
+		})
+		return
+	}
 
-// func (uc *usersController) Register() gin.HandlerFunc {
-// 	return func(c *gin.Context) {
-// 		err := c.BindJSON(&user)
-// 		if err != nil {
-// 			c.PureJSON(http.StatusBadRequest, gin.H{
-// 				"msg": "your request is wrong",
-// 			})
+	newUserId, err := services.SignUp(&su)
 
-// 		}
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error": err.Error(),
+		})
+		return
+	}
 
-// 		userId, err := uc.userService.Register(&user)
-// 		if err != nil {
+	c.JSON(http.StatusCreated, gin.H{
+		"userId": newUserId,
+	})
+}
 
-// 			c.PureJSON(http.StatusInternalServerError, gin.H{
-// 				"msg": "oops something is wrong with our server",
-// 			})
+func Login(c *gin.Context) {
+	var uc serializers.UserCredentials
+	bErr := c.BindJSON(&uc)
 
-// 		}
-// 		c.PureJSON(http.StatusCreated, gin.H{
-// 			"msg": "done",
-// 		})
+	if bErr != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": "client request is wrong",
+		})
+		return
+	}
 
-// 	}
-// }
+	token, sErr := services.Login(&uc)
 
-// func (uc *usersController) Login() gin.HandlerFunc {
-// 	return func(c *gin.Context) {
-// 		var login contracts.Login
-// 		err := c.BindJSON(&login)
-// 		if err != nil {
-// 			api.BadRequest(c)
-// 			return
-// 		}
+	if sErr != nil {
+		if sErr.Error() == "wrong user credentials" {
+			c.JSON(http.StatusUnauthorized, gin.H{
+				"error": sErr.Error(),
+			})
+			return
+		}
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error": sErr.Error(),
+		})
+		return
+	}
 
-// 		tokenId, err := uc.userService.Login(login.Email, login.Password)
-// 		if err != nil {
-// 			api.InternalServerError(c)
-// 			return
-// 		}
-
-// 		api.OK(c, gin.H{"tokenId": tokenId})
-// 	}
-// }
+	c.JSON(http.StatusOK, gin.H{
+		"token": token,
+	})
+}

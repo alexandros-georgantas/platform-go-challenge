@@ -16,7 +16,6 @@ services:
     build:
       context: ./packages/server
       dockerfile: Dockerfile
-
     depends_on:
       db:
         condition: service_healthy
@@ -26,7 +25,7 @@ services:
       - DB_NAME=${DB_NAME:-gwi_dev}
       - DB_USERNAME=${DB_USERNAME:-gwi_dev_user}
       - DB_PASSWORD=${DB_PASSWORD:-dev_user_password}
-    # entrypoint: []
+      - SERVER_SECRET=${SERVER_SECRET:-superSecretValue}
     command: "make watch"
     ports:
       - ${SERVER_PORT:-3000}:3000
@@ -48,5 +47,4 @@ services:
       - POSTGRES_USER=${DB_USERNAME:-gwi_dev_user}
       - POSTGRES_PASSWORD=${DB_PASSWORD:-dev_user_password}
     volumes:
-      # - postgres-db:/var/lib/postgresql/data
       - ./scripts/init_db.sql:/docker-entrypoint-initdb.d/init_db.sql

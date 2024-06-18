@@ -12,5 +12,4 @@ type Asset struct {
 	// RelatedChart    *Chart    `gorm:"polymorphic:Related;polymorphicValue:chart"`
 	// RelatedInsight  *Insight  `gorm:"polymorphic:Related;polymorphicValue:insight"`
 	// RelatedAudience *Audience `gorm:"polymorphic:Related;polymorphicValue:audience"`
-	Users []User `gorm:"many2many:favorites;"`
 }
