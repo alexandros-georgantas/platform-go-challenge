@@ -32,6 +32,7 @@ services:
     volumes:
       - ./packages/server/cmd:/home/go/server/cmd
       - ./packages/server/internal:/home/go/server/internal
+      - ./packages/server/seeds:/home/go/server/seeds
 
   db:
     image: postgres:16.3-alpine

@@ -14,7 +14,7 @@ func (s *Server) RegisterRoutes() http.Handler {
 	// GENERIC ROUTE
 	r.GET("/health", s.healthHandler)
 
-	// API ROUTES
+	// API OPEN ROUTES
 	v1 := r.Group("/api/v1")
 
 	{
@@ -24,14 +24,17 @@ func (s *Server) RegisterRoutes() http.Handler {
 
 	v1.Use(middlewares.Authenticate)
 
+	// API PROTECTED ROUTES
 	{
-		v1.GET("/users/:userId/favorites", s.healthHandler)    //get user's favorites
-		v1.POST("/users/:userId/favorites", s.healthHandler)   //set user's favorite
-		v1.DELETE("/users/:userId/favorites", s.healthHandler) //delete user's favorite
-		v1.GET("/assets", s.healthHandler)                     //get all assets
-		v1.GET("/assets/charts", s.healthHandler)              //get charts
-		v1.GET("/assets/audiences", s.healthHandler)           //get audiences
-		v1.GET("/assets/insights", s.healthHandler)            //get insights
+		v1.GET("/assets", controllers.GetAssets)                    //get all assets
+		v1.PATCH("/assets/:assetId", controllers.UpdateDescription) //patch asset's description
+		v1.GET("/assets/charts", controllers.GetCharts)             //get charts
+		v1.GET("/assets/insights", controllers.GetInsights)         //get insights
+		v1.GET("/assets/audiences", controllers.GetAudiences)       //get audiences
+		// v1.GET("/users/:userId/favorites", s.healthHandler)                //get user's favorites
+		v1.POST("/users/:userId/favorites", controllers.AddToFavorites)               //set user's favorite
+		v1.DELETE("/users/:userId/favorites/:favoriteId", controllers.DeleteFavorite) //delete user's favorite
+
 	}
 
 	return r

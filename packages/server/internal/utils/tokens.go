@@ -2,7 +2,9 @@ package utils
 
 import (
 	"errors"
+	"fmt"
 	"os"
+	"strconv"
 	"time"
 
 	"github.com/golang-jwt/jwt"
@@ -29,19 +31,22 @@ func CreateToken(uid uint) (*string, error) {
 	return &tokenString, nil
 }
 
-func VerifyToken(tokenString string) error {
+func VerifyToken(tokenString string) (int, error) {
 
 	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
 		return secretKey, nil
 	})
 
-	if err != nil {
-		return err
+	claims, _ := token.Claims.(jwt.MapClaims)
+	userId, cErr := strconv.Atoi(fmt.Sprint(claims["sub"]))
+
+	if err != nil || cErr != nil {
+		return -1, errors.New("error while parsing token")
 	}
 
 	if !token.Valid {
-		return errors.New("invalid token")
+		return -1, errors.New("invalid token")
 	}
 
-	return nil
+	return userId, nil
 }

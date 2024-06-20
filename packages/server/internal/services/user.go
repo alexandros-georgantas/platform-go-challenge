@@ -10,11 +10,12 @@ import (
 	"gorm.io/gorm"
 )
 
-var (
-	db = database.GetDBConnection()
-)
+// var (
+// 	db = database.GetDBConnection()
+// )
 
 func SignUp(su *serializers.SignUpUser) (*uint, error) {
+	db := database.GetDBConnection()
 	user := models.User{GivenName: su.GivenName, Surname: su.Surname, Email: su.Email, Password: su.Password}
 	dbErr := db.Create(&user).Error
 
@@ -26,6 +27,7 @@ func SignUp(su *serializers.SignUpUser) (*uint, error) {
 }
 
 func Login(uc *serializers.UserCredentials) (*string, error) {
+	db := database.GetDBConnection()
 	user := models.User{}
 
 	dbErr := db.Where("email = ?", uc.Email).First(&user).Error

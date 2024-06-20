@@ -1,13 +1,18 @@
 package middlewares
 
 import (
+	"errors"
 	"net/http"
 
+	"github.com/alexandros-georgantas/platform-go-challenge/internal/database"
+	"github.com/alexandros-georgantas/platform-go-challenge/internal/models"
 	"github.com/alexandros-georgantas/platform-go-challenge/internal/utils"
 	"github.com/gin-gonic/gin"
+	"gorm.io/gorm"
 )
 
 func Authenticate(c *gin.Context) {
+	var user models.User
 
 	tokenString := c.GetHeader("Authorization")
 
@@ -19,13 +24,22 @@ func Authenticate(c *gin.Context) {
 
 	tokenString = tokenString[len("Bearer "):]
 
-	err := utils.VerifyToken(tokenString)
+	userId, vErr := utils.VerifyToken(tokenString)
 
-	if err != nil {
+	if vErr != nil || userId == -1 {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "invalid token"})
 		c.Abort()
 		return
 	}
 
+	db := database.GetDBConnection()
+	err := db.First(&user, userId).Error
+
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "invalid token"})
+		c.Abort()
+		return
+	}
+	c.Set("userId", userId)
 	c.Next()
 }

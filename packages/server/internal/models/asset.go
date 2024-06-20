@@ -7,9 +7,16 @@ import (
 type Asset struct {
 	gorm.Model
 	Description string
-	RelatedType string `gorm:"index"` // Polymorphic type field
-	RelatedID   uint   `gorm:"index"` // Polymorphic ID field
-	// RelatedChart    *Chart    `gorm:"polymorphic:Related;polymorphicValue:chart"`
-	// RelatedInsight  *Insight  `gorm:"polymorphic:Related;polymorphicValue:insight"`
-	// RelatedAudience *Audience `gorm:"polymorphic:Related;polymorphicValue:audience"`
+	RelatedID   uint
+	RelatedType string
+}
+
+type AssetResponse struct {
+	ID          uint
+	Description string
+	RelatedID   uint
+	RelatedType string
+	Chart       *ChartWithoutAsset
+	Audience    *AudienceWithoutAsset
+	Insight     *InsightWithoutAsset
 }
