@@ -17,7 +17,7 @@ func Create() *http.Server {
 		db: database.GetDBConnection(),
 	}
 
-	// Declare Server config
+	// Basic server config
 	server := &http.Server{
 		Addr:         ":3000",
 		Handler:      NewServer.RegisterRoutes(),

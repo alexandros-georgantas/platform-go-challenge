@@ -11,12 +11,28 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func GetAssets(c *gin.Context) {
+type AssetController interface {
+	GetAssets(c *gin.Context)
+	GetCharts(c *gin.Context)
+	GetAudiences(c *gin.Context)
+	GetInsights(c *gin.Context)
+	UpdateDescription(c *gin.Context)
+}
+
+type assetController struct {
+	assetService services.AssetService
+}
+
+func NewAssetController(assetService services.AssetService) (AssetController, error) {
+	return &assetController{assetService: assetService}, nil
+}
+
+func (ac *assetController) GetAssets(c *gin.Context) {
 	q := c.Request.URL.Query()
 	page, _ := strconv.Atoi(q.Get("page"))
 	pageSize, _ := strconv.Atoi(q.Get("limit"))
 
-	assets, err := services.GetAssets(page, pageSize)
+	assets, err := ac.assetService.GetAssets(page, pageSize)
 
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
@@ -30,12 +46,12 @@ func GetAssets(c *gin.Context) {
 	})
 }
 
-func GetCharts(c *gin.Context) {
+func (ac *assetController) GetCharts(c *gin.Context) {
 	q := c.Request.URL.Query()
 	page, _ := strconv.Atoi(q.Get("page"))
 	pageSize, _ := strconv.Atoi(q.Get("limit"))
 
-	charts, err := services.GetCharts(page, pageSize)
+	charts, err := ac.assetService.GetCharts(page, pageSize)
 
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
@@ -48,12 +64,12 @@ func GetCharts(c *gin.Context) {
 		"assets": charts,
 	})
 }
-func GetAudiences(c *gin.Context) {
+func (ac *assetController) GetAudiences(c *gin.Context) {
 	q := c.Request.URL.Query()
 	page, _ := strconv.Atoi(q.Get("page"))
 	pageSize, _ := strconv.Atoi(q.Get("limit"))
 
-	audiences, err := services.GetAudiences(page, pageSize)
+	audiences, err := ac.assetService.GetAudiences(page, pageSize)
 
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
@@ -67,12 +83,12 @@ func GetAudiences(c *gin.Context) {
 	})
 }
 
-func GetInsights(c *gin.Context) {
+func (ac *assetController) GetInsights(c *gin.Context) {
 	q := c.Request.URL.Query()
 	page, _ := strconv.Atoi(q.Get("page"))
 	pageSize, _ := strconv.Atoi(q.Get("limit"))
 
-	insights, err := services.GetInsights(page, pageSize)
+	insights, err := ac.assetService.GetInsights(page, pageSize)
 
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
@@ -86,11 +102,11 @@ func GetInsights(c *gin.Context) {
 	})
 }
 
-func UpdateDescription(c *gin.Context) {
+func (ac *assetController) UpdateDescription(c *gin.Context) {
 	var uD serializers.UpdateDescription
 	aId, _ := strconv.Atoi(c.Param("assetId"))
 	bErr := c.BindJSON(&uD)
-	uA, aErr := services.UpdateDescription(uint(aId), uD.Description)
+	uA, aErr := ac.assetService.UpdateDescription(uint(aId), uD.Description)
 
 	if uD.Description == "" {
 

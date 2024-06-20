@@ -10,7 +10,21 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func AddToFavorites(c *gin.Context) {
+type FavoriteController interface {
+	AddToFavorites(c *gin.Context)
+	DeleteFavorite(c *gin.Context)
+	GetFavorites(c *gin.Context)
+}
+
+type favoriteController struct {
+	favoriteService services.FavoriteService
+}
+
+func NewFavoriteController(favoriteService services.FavoriteService) (FavoriteController, error) {
+	return &favoriteController{favoriteService: favoriteService}, nil
+}
+
+func (fc *favoriteController) AddToFavorites(c *gin.Context) {
 	var aF serializers.AddToFavorites
 	pUId, _ := strconv.Atoi(c.Param("userId"))
 	cUId := c.MustGet("userId")
@@ -21,7 +35,7 @@ func AddToFavorites(c *gin.Context) {
 		return
 	}
 
-	favorite, aErr := services.AddToFavorites(uint(pUId), uint(aF.ID))
+	favorite, aErr := fc.favoriteService.AddToFavorites(uint(pUId), uint(aF.ID))
 
 	if aErr != nil || bErr != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
@@ -35,7 +49,7 @@ func AddToFavorites(c *gin.Context) {
 	})
 }
 
-func DeleteFavorite(c *gin.Context) {
+func (fc *favoriteController) DeleteFavorite(c *gin.Context) {
 	pUId, _ := strconv.Atoi(c.Param("userId"))
 	pFId, _ := strconv.Atoi(c.Param("favorite"))
 	cUId := c.MustGet("userId")
@@ -45,7 +59,7 @@ func DeleteFavorite(c *gin.Context) {
 		return
 	}
 
-	dId, aErr := services.RemoveFromFavorites(uint(pFId))
+	dId, aErr := fc.favoriteService.RemoveFromFavorites(uint(pFId))
 
 	if aErr != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
@@ -59,7 +73,7 @@ func DeleteFavorite(c *gin.Context) {
 	})
 }
 
-func GetFavorites(c *gin.Context) {
+func (fc *favoriteController) GetFavorites(c *gin.Context) {
 	pUId, _ := strconv.Atoi(c.Param("userId"))
 
 	cUId := c.MustGet("userId")
@@ -69,7 +83,7 @@ func GetFavorites(c *gin.Context) {
 		return
 	}
 
-	favorites, aErr := services.GetFavorites(uint(pUId))
+	favorites, aErr := fc.favoriteService.GetFavorites(uint(pUId))
 
 	if aErr != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{

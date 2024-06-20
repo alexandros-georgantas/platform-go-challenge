@@ -3,21 +3,29 @@ package services
 import (
 	"errors"
 
-	"github.com/alexandros-georgantas/platform-go-challenge/internal/database"
 	"github.com/alexandros-georgantas/platform-go-challenge/internal/models"
 	"github.com/alexandros-georgantas/platform-go-challenge/internal/serializers"
 	"github.com/alexandros-georgantas/platform-go-challenge/internal/utils"
 	"gorm.io/gorm"
 )
 
-// var (
-// 	db = database.GetDBConnection()
-// )
+type UserService interface {
+	SignUp(su *serializers.SignUpUser) (*uint, error)
+	Login(uc *serializers.UserCredentials) (*string, error)
+}
 
-func SignUp(su *serializers.SignUpUser) (*uint, error) {
-	db := database.GetDBConnection()
+type userService struct {
+	db gorm.DB
+}
+
+func NewUserService(db gorm.DB) (UserService, error) {
+	return &userService{db: db}, nil
+}
+
+func (uS *userService) SignUp(su *serializers.SignUpUser) (*uint, error) {
+
 	user := models.User{GivenName: su.GivenName, Surname: su.Surname, Email: su.Email, Password: su.Password}
-	dbErr := db.Create(&user).Error
+	dbErr := uS.db.Create(&user).Error
 
 	if dbErr != nil {
 		return nil, errors.New("could not create user")
@@ -26,11 +34,11 @@ func SignUp(su *serializers.SignUpUser) (*uint, error) {
 	return &user.ID, nil
 }
 
-func Login(uc *serializers.UserCredentials) (*string, error) {
-	db := database.GetDBConnection()
+func (uS *userService) Login(uc *serializers.UserCredentials) (*string, error) {
+
 	user := models.User{}
 
-	dbErr := db.Where("email = ?", uc.Email).First(&user).Error
+	dbErr := uS.db.Where("email = ?", uc.Email).First(&user).Error
 
 	if errors.Is(dbErr, gorm.ErrRecordNotFound) {
 		return nil, errors.New("wrong user credentials")

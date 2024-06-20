@@ -8,7 +8,20 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func SignUp(c *gin.Context) {
+type UserController interface {
+	SignUp(c *gin.Context)
+	Login(c *gin.Context)
+}
+
+type userController struct {
+	userService services.UserService
+}
+
+func NewUserController(userService services.UserService) (UserController, error) {
+	return &userController{userService: userService}, nil
+}
+
+func (uc *userController) SignUp(c *gin.Context) {
 	var su serializers.SignUpUser
 	err := c.BindJSON(&su)
 
@@ -19,7 +32,7 @@ func SignUp(c *gin.Context) {
 		return
 	}
 
-	newUserId, err := services.SignUp(&su)
+	newUserId, err := uc.userService.SignUp(&su)
 
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
@@ -33,8 +46,8 @@ func SignUp(c *gin.Context) {
 	})
 }
 
-func Login(c *gin.Context) {
-	var uc serializers.UserCredentials
+func (uc *userController) Login(c *gin.Context) {
+	var sUc serializers.UserCredentials
 	bErr := c.BindJSON(&uc)
 
 	if bErr != nil {
@@ -44,7 +57,7 @@ func Login(c *gin.Context) {
 		return
 	}
 
-	token, sErr := services.Login(&uc)
+	token, sErr := uc.userService.Login(&sUc)
 
 	if sErr != nil {
 		if sErr.Error() == "wrong user credentials" {
