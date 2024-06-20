@@ -52,7 +52,7 @@ func (fc *favoriteController) AddToFavorites(c *gin.Context) {
 
 func (fc *favoriteController) DeleteFavorite(c *gin.Context) {
 	pUId, _ := strconv.Atoi(c.Param("userId"))
-	pFId, _ := strconv.Atoi(c.Param("favorite"))
+	pFId, _ := strconv.Atoi(c.Param("favoriteId"))
 	cUId := c.MustGet("userId")
 
 	if pUId != cUId {
@@ -70,7 +70,7 @@ func (fc *favoriteController) DeleteFavorite(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{
-		"asset": dId,
+		"deletedId": dId,
 	})
 }
 
@@ -95,7 +95,7 @@ func (fc *favoriteController) GetFavorite(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{
-		"asset": favorite,
+		"favorite": favorite,
 	})
 }
 func (fc *favoriteController) GetFavorites(c *gin.Context) {
@@ -118,6 +118,6 @@ func (fc *favoriteController) GetFavorites(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{
-		"asset": favorites,
+		"favorites": favorites,
 	})
 }

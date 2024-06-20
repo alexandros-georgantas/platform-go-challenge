@@ -71,10 +71,12 @@ From the root of the cloned repo, one should execute
 
 ## TODOs
 
+- [x] implement dummy frontend
+- [x] implement backend
 - [ ] write OpenAPI spec
-- [ ] implement frontend app
-- [ ] introduce a caching layer for caching users' favorites. This will improve response times of the main query which is responsible to fetch all the favorites of a logged-in based on `userId`.
+- [ ] implement proper frontend
+- [ ] introduce a caching layer for caching users' favorites. This will improve response times of the main query which is responsible to fetch all the favorites of a logged-in user based on `userId`.
 - [ ] write unit tests for the backend to thoroughly test the behavior of controllers and services
 - [ ] implement validations of inputs in both frontend and backend
-- [ ] implement backend
+- [ ] better error handling
 - [ ] improve logging on backend
