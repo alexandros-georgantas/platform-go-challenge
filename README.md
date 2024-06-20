@@ -54,7 +54,7 @@ Asset's foreign key will be the combination of `RelatedID` with `RelatedType` ->
 - internals/services -> application's logic used from controllers
 - internals/serializers -> map external entities to internal structures
 - internals/utils -> small functions for handling hashing, tokens
-- internals/utils -> small reusable functions that interact with data layer
+- internals/helpers -> small reusable functions that interact with data layer
 
 ### Backend (React app using Vite and Antd for the UI)
 
