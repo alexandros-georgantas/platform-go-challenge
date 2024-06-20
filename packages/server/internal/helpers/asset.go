@@ -3,12 +3,11 @@ package helpers
 import (
 	"fmt"
 
-	"github.com/alexandros-georgantas/platform-go-challenge/internal/database"
 	"github.com/alexandros-georgantas/platform-go-challenge/internal/models"
+	"gorm.io/gorm"
 )
 
-func AggregateAssetType(a models.Asset) (*models.AssetResponse, error) {
-	db := database.GetDBConnection()
+func AggregateAssetType(a models.Asset, db gorm.DB) (*models.AssetResponse, error) {
 
 	var assetResponse models.AssetResponse
 	assetResponse.ID = a.ID

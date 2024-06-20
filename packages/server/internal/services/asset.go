@@ -25,17 +25,17 @@ func NewAssetService(db gorm.DB) (AssetService, error) {
 	return &assetService{db: db}, nil
 }
 
-func (aS *assetService) GetAssets(p int, pS int) ([]models.AssetResponse, error) {
+func (as *assetService) GetAssets(p int, pS int) ([]models.AssetResponse, error) {
 	var assets []models.Asset
 	var assetResponses []models.AssetResponse
 
-	if err := aS.db.Scopes(helpers.Paginate(p, pS)).Find(&assets).Error; err != nil {
+	if err := as.db.Scopes(helpers.Paginate(p, pS)).Find(&assets).Error; err != nil {
 		return nil, errors.New("something went wrong while fetching assets")
 	}
 
 	for _, asset := range assets {
 		var assetResponse models.AssetResponse
-		result, err := helpers.AggregateAssetType(asset)
+		result, err := helpers.AggregateAssetType(asset, as.db)
 
 		if err != nil {
 			return nil, err
@@ -48,20 +48,20 @@ func (aS *assetService) GetAssets(p int, pS int) ([]models.AssetResponse, error)
 	return assetResponses, nil
 }
 
-func (aS *assetService) GetCharts(p int, pS int) ([]models.Chart, error) {
+func (as *assetService) GetCharts(p int, pS int) ([]models.Chart, error) {
 	var charts []models.Chart
 
-	if err := aS.db.Preload("Asset").Scopes(helpers.Paginate(p, pS)).Find(&charts).Error; err != nil {
+	if err := as.db.Preload("Asset").Scopes(helpers.Paginate(p, pS)).Find(&charts).Error; err != nil {
 		return nil, errors.New("something went wrong while fetching charts")
 
 	}
 	return charts, nil
 }
 
-func (aS *assetService) GetAudiences(p int, pS int) ([]models.Audience, error) {
+func (as *assetService) GetAudiences(p int, pS int) ([]models.Audience, error) {
 	var audiences []models.Audience
 
-	if err := aS.db.Preload("Asset").Scopes(helpers.Paginate(p, pS)).Find(&audiences).Error; err != nil {
+	if err := as.db.Preload("Asset").Scopes(helpers.Paginate(p, pS)).Find(&audiences).Error; err != nil {
 		return nil, errors.New("something went wrong while fetching audiences")
 
 	}
@@ -69,28 +69,28 @@ func (aS *assetService) GetAudiences(p int, pS int) ([]models.Audience, error) {
 	return audiences, nil
 }
 
-func (aS *assetService) GetInsights(p int, pS int) ([]models.Insight, error) {
+func (as *assetService) GetInsights(p int, pS int) ([]models.Insight, error) {
 	var insights []models.Insight
 
-	if err := aS.db.Preload("Asset").Scopes(helpers.Paginate(p, pS)).Find(&insights).Error; err != nil {
+	if err := as.db.Preload("Asset").Scopes(helpers.Paginate(p, pS)).Find(&insights).Error; err != nil {
 		return nil, errors.New("something went wrong while fetching insights")
 
 	}
 	return insights, nil
 }
 
-func (aS *assetService) UpdateDescription(aId uint, d string) (*models.AssetResponse, error) {
+func (as *assetService) UpdateDescription(aId uint, d string) (*models.AssetResponse, error) {
 	var asset models.Asset
 
-	if fErr := aS.db.First(&asset, aId).Error; fErr != nil {
+	if fErr := as.db.First(&asset, aId).Error; fErr != nil {
 		return nil, fmt.Errorf("something went wrong while fetching  asset with id %v", aId)
 	}
 
-	if pErr := aS.db.Model(&asset).Update("description", d).Error; pErr != nil {
+	if pErr := as.db.Model(&asset).Update("description", d).Error; pErr != nil {
 		return nil, fmt.Errorf("something went wrong while updating description of asset with id %v", aId)
 	}
 
-	result, aErr := helpers.AggregateAssetType(asset)
+	result, aErr := helpers.AggregateAssetType(asset, as.db)
 
 	if aErr != nil {
 		return nil, aErr

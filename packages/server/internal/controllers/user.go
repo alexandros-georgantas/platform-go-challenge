@@ -47,8 +47,8 @@ func (uc *userController) SignUp(c *gin.Context) {
 }
 
 func (uc *userController) Login(c *gin.Context) {
-	var sUc serializers.UserCredentials
-	bErr := c.BindJSON(&uc)
+	var ucr serializers.UserCredentials
+	bErr := c.BindJSON(&ucr)
 
 	if bErr != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
@@ -57,7 +57,7 @@ func (uc *userController) Login(c *gin.Context) {
 		return
 	}
 
-	token, sErr := uc.userService.Login(&sUc)
+	token, sErr := uc.userService.Login(&ucr)
 
 	if sErr != nil {
 		if sErr.Error() == "wrong user credentials" {

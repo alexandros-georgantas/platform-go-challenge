@@ -22,10 +22,10 @@ func NewUserService(db gorm.DB) (UserService, error) {
 	return &userService{db: db}, nil
 }
 
-func (uS *userService) SignUp(su *serializers.SignUpUser) (*uint, error) {
+func (us *userService) SignUp(su *serializers.SignUpUser) (*uint, error) {
 
 	user := models.User{GivenName: su.GivenName, Surname: su.Surname, Email: su.Email, Password: su.Password}
-	dbErr := uS.db.Create(&user).Error
+	dbErr := us.db.Create(&user).Error
 
 	if dbErr != nil {
 		return nil, errors.New("could not create user")
@@ -34,11 +34,11 @@ func (uS *userService) SignUp(su *serializers.SignUpUser) (*uint, error) {
 	return &user.ID, nil
 }
 
-func (uS *userService) Login(uc *serializers.UserCredentials) (*string, error) {
+func (us *userService) Login(uc *serializers.UserCredentials) (*string, error) {
 
 	user := models.User{}
 
-	dbErr := uS.db.Where("email = ?", uc.Email).First(&user).Error
+	dbErr := us.db.Where("email = ?", uc.Email).First(&user).Error
 
 	if errors.Is(dbErr, gorm.ErrRecordNotFound) {
 		return nil, errors.New("wrong user credentials")

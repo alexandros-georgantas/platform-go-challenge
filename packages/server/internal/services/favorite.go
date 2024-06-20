@@ -33,7 +33,7 @@ func (fs *favoriteService) GetFavorites(uId uint) ([]models.AssetResponse, error
 	for _, favorite := range favorites {
 		var assetResponse models.AssetResponse
 
-		result, err := helpers.AggregateAssetType(favorite.Asset)
+		result, err := helpers.AggregateAssetType(favorite.Asset, fs.db)
 		if err != nil {
 			return nil, err
 		}
