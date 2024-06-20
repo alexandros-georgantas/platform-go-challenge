@@ -6,7 +6,7 @@ import (
 
 type Favorite struct {
 	gorm.Model
-	UserID  uint  `gorm:"primaryKey;uniqueIndex:user_asset,priority:1"`
-	AssetID uint  `gorm:"primaryKey;uniqueIndex:user_asset,priority:2"`
-	Asset   Asset `gorm:"foreignKey:AssetID"`
+	UserID  uint `gorm:"primaryKey;uniqueIndex:user_asset,priority:1"`
+	AssetID uint `gorm:"primaryKey;uniqueIndex:user_asset,priority:2"`
+	Asset   Asset
 }

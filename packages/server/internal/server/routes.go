@@ -37,12 +37,13 @@ func (s *Server) RegisterRoutes() http.Handler {
 
 	// API PROTECTED ROUTES
 	{
-		v1.GET("/assets", assetController.GetAssets) //get all assets
-		// v1.GET("/assets/:assetId", assetController.UpdateDescription)               //patch asset's description
+		v1.GET("/assets", assetController.GetAssets)                                         //get all assets
+		v1.GET("/assets/:assetId", assetController.GetAsset)                                 //get asset's details
 		v1.PATCH("/assets/:assetId", assetController.UpdateDescription)                      //patch asset's description
 		v1.GET("/assets/charts", assetController.GetCharts)                                  //get charts
 		v1.GET("/assets/insights", assetController.GetInsights)                              //get insights
 		v1.GET("/assets/audiences", assetController.GetAudiences)                            //get audiences
+		v1.GET("/users/:userId/favorites/:favoriteId", favoriteController.GetFavorite)       //get user's favorite details
 		v1.GET("/users/:userId/favorites", favoriteController.GetFavorites)                  //get user's favorites
 		v1.POST("/users/:userId/favorites", favoriteController.AddToFavorites)               //set user's favorite
 		v1.DELETE("/users/:userId/favorites/:favoriteId", favoriteController.DeleteFavorite) //delete user's favorite

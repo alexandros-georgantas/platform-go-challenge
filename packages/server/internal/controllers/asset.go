@@ -12,6 +12,7 @@ import (
 )
 
 type AssetController interface {
+	GetAsset(c *gin.Context)
 	GetAssets(c *gin.Context)
 	GetCharts(c *gin.Context)
 	GetAudiences(c *gin.Context)
@@ -125,6 +126,24 @@ func (ac *assetController) UpdateDescription(c *gin.Context) {
 
 	c.JSON(http.StatusOK, gin.H{
 		"asset": uA,
+	})
+
+}
+
+func (ac *assetController) GetAsset(c *gin.Context) {
+	aid, _ := strconv.Atoi(c.Param("assetId"))
+
+	a, aErr := ac.assetService.GetAsset(uint(aid))
+
+	if aErr != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error": fmt.Errorf("something went wrong while updating description of asset with id %v", aid).Error(),
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"asset": a,
 	})
 
 }

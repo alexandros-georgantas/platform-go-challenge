@@ -13,6 +13,7 @@ import (
 type FavoriteController interface {
 	AddToFavorites(c *gin.Context)
 	DeleteFavorite(c *gin.Context)
+	GetFavorite(c *gin.Context)
 	GetFavorites(c *gin.Context)
 }
 
@@ -73,6 +74,30 @@ func (fc *favoriteController) DeleteFavorite(c *gin.Context) {
 	})
 }
 
+func (fc *favoriteController) GetFavorite(c *gin.Context) {
+	pUId, _ := strconv.Atoi(c.Param("userId"))
+	pFId, _ := strconv.Atoi(c.Param("favoriteId"))
+
+	cUId := c.MustGet("userId")
+
+	if pUId != cUId {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "invalid token action"})
+		return
+	}
+
+	favorite, aErr := fc.favoriteService.GetFavorite(uint(pUId), uint(pFId))
+
+	if aErr != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error": fmt.Errorf("something went wrong while fetching favorite  with id %v ", pFId).Error(),
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"asset": favorite,
+	})
+}
 func (fc *favoriteController) GetFavorites(c *gin.Context) {
 	pUId, _ := strconv.Atoi(c.Param("userId"))
 

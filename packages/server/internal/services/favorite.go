@@ -9,6 +9,7 @@ import (
 )
 
 type FavoriteService interface {
+	GetFavorite(uId uint, aId uint) (*models.AssetResponse, error)
 	GetFavorites(uId uint) ([]models.AssetResponse, error)
 	AddToFavorites(uId uint, aId uint) (*models.Favorite, error)
 	RemoveFromFavorites(fId uint) (*uint, error)
@@ -22,10 +23,26 @@ func NewFavoriteService(db gorm.DB) (FavoriteService, error) {
 	return &favoriteService{db: db}, nil
 }
 
+func (fs *favoriteService) GetFavorite(uId uint, aId uint) (*models.AssetResponse, error) {
+	var favorite models.Favorite
+
+	if err := fs.db.Joins("Asset").Where("user_id = ?", uId).First(&favorite, aId).Error; err != nil {
+		return nil, err
+	}
+
+	result, aErr := helpers.AggregateAssetType(favorite.Asset, fs.db)
+
+	if aErr != nil {
+		return nil, aErr
+	}
+
+	return result, nil
+}
+
 func (fs *favoriteService) GetFavorites(uId uint) ([]models.AssetResponse, error) {
 	var favorites []models.Favorite
 
-	if err := fs.db.Preload("Asset").Where("user_id = ?", uId).Find(&favorites).Error; err != nil {
+	if err := fs.db.Joins("Asset").Where("user_id = ?", uId).Find(&favorites).Error; err != nil {
 		return nil, err
 	}
 
@@ -47,8 +64,8 @@ func (fs *favoriteService) GetFavorites(uId uint) ([]models.AssetResponse, error
 
 func (fs *favoriteService) AddToFavorites(uId uint, aId uint) (*models.Favorite, error) {
 	favorite := models.Favorite{UserID: uId, AssetID: aId}
-
-	if err := fs.db.Create(&favorite).Error; err != nil {
+	fmt.Println("here")
+	if err := fs.db.Preload("Asset").Create(&favorite).First(&favorite).Error; err != nil {
 		return nil, fmt.Errorf("something went wrong while adding asset with id %v to favorites", aId)
 
 	}

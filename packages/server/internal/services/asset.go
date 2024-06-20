@@ -10,6 +10,7 @@ import (
 )
 
 type AssetService interface {
+	GetAsset(aid uint) (*models.AssetResponse, error)
 	GetAssets(p int, pS int) ([]models.AssetResponse, error)
 	GetCharts(p int, pS int) ([]models.Chart, error)
 	GetAudiences(p int, pS int) ([]models.Audience, error)
@@ -90,6 +91,20 @@ func (as *assetService) UpdateDescription(aId uint, d string) (*models.AssetResp
 		return nil, fmt.Errorf("something went wrong while updating description of asset with id %v", aId)
 	}
 
+	result, aErr := helpers.AggregateAssetType(asset, as.db)
+
+	if aErr != nil {
+		return nil, aErr
+	}
+
+	return result, nil
+}
+
+func (as *assetService) GetAsset(aid uint) (*models.AssetResponse, error) {
+	var asset models.Asset
+	if err := as.db.First(&asset, aid).Error; err != nil {
+		return nil, fmt.Errorf("something went wrong while fetching asset with id %v", aid)
+	}
 	result, aErr := helpers.AggregateAssetType(asset, as.db)
 
 	if aErr != nil {
