@@ -58,3 +58,27 @@ func DeleteFavorite(c *gin.Context) {
 		"asset": dId,
 	})
 }
+
+func GetFavorites(c *gin.Context) {
+	pUId, _ := strconv.Atoi(c.Param("userId"))
+
+	cUId := c.MustGet("userId")
+
+	if pUId != cUId {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "invalid token action"})
+		return
+	}
+
+	favorites, aErr := services.GetFavorites(uint(pUId))
+
+	if aErr != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error": fmt.Errorf("something went wrong while fetching favorites for user with id %v ", pUId).Error(),
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"asset": favorites,
+	})
+}
