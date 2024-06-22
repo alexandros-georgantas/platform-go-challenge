@@ -11,6 +11,7 @@ import (
 type UserController interface {
 	SignUp(c *gin.Context)
 	Login(c *gin.Context)
+	GetCurrentUser(c *gin.Context)
 }
 
 type userController struct {
@@ -74,5 +75,22 @@ func (uc *userController) Login(c *gin.Context) {
 
 	c.JSON(http.StatusOK, gin.H{
 		"token": token,
+	})
+}
+
+func (uc *userController) GetCurrentUser(c *gin.Context) {
+
+	cUId := c.MustGet("userId").(int)
+
+	user, aErr := uc.userService.GetCurrentUser(uint(cUId))
+
+	if aErr != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error": aErr.Error(),
+		})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{
+		"currentUser": user,
 	})
 }

@@ -16,6 +16,13 @@ type User struct {
 	Favorites []Favorite
 }
 
+type CurrentUserResponse struct {
+	ID        uint
+	Email     string
+	GivenName string
+	Surname   string
+}
+
 func (u *User) BeforeCreate(tx *gorm.DB) (err error) {
 
 	hash, err := utils.HashPassword(u.Password)

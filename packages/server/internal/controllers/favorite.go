@@ -28,7 +28,7 @@ func NewFavoriteController(favoriteService services.FavoriteService) (FavoriteCo
 func (fc *favoriteController) AddToFavorites(c *gin.Context) {
 	var aF serializers.AddToFavorites
 	pUId, _ := strconv.Atoi(c.Param("userId"))
-	cUId := c.MustGet("userId")
+	cUId := c.MustGet("userId").(int)
 	bErr := c.BindJSON(&aF)
 
 	if pUId != cUId {
@@ -46,14 +46,14 @@ func (fc *favoriteController) AddToFavorites(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{
-		"assets": favorite,
+		"favorite": favorite,
 	})
 }
 
 func (fc *favoriteController) DeleteFavorite(c *gin.Context) {
 	pUId, _ := strconv.Atoi(c.Param("userId"))
 	pFId, _ := strconv.Atoi(c.Param("favoriteId"))
-	cUId := c.MustGet("userId")
+	cUId := c.MustGet("userId").(int)
 
 	if pUId != cUId {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "invalid token action"})
@@ -78,7 +78,7 @@ func (fc *favoriteController) GetFavorite(c *gin.Context) {
 	pUId, _ := strconv.Atoi(c.Param("userId"))
 	pFId, _ := strconv.Atoi(c.Param("favoriteId"))
 
-	cUId := c.MustGet("userId")
+	cUId := c.MustGet("userId").(int)
 
 	if pUId != cUId {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "invalid token action"})
@@ -101,7 +101,7 @@ func (fc *favoriteController) GetFavorite(c *gin.Context) {
 func (fc *favoriteController) GetFavorites(c *gin.Context) {
 	pUId, _ := strconv.Atoi(c.Param("userId"))
 
-	cUId := c.MustGet("userId")
+	cUId := c.MustGet("userId").(int)
 
 	if pUId != cUId {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "invalid token action"})

@@ -62,7 +62,7 @@ func (ac *assetController) GetCharts(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusCreated, gin.H{
-		"assets": charts,
+		"charts": charts,
 	})
 }
 func (ac *assetController) GetAudiences(c *gin.Context) {
@@ -80,7 +80,7 @@ func (ac *assetController) GetAudiences(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusCreated, gin.H{
-		"assets": audiences,
+		"audiences": audiences,
 	})
 }
 
@@ -99,7 +99,7 @@ func (ac *assetController) GetInsights(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusCreated, gin.H{
-		"assets": insights,
+		"insights": insights,
 	})
 }
 

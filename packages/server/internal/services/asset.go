@@ -6,15 +6,16 @@ import (
 
 	"github.com/alexandros-georgantas/platform-go-challenge/internal/helpers"
 	"github.com/alexandros-georgantas/platform-go-challenge/internal/models"
+	"github.com/alexandros-georgantas/platform-go-challenge/internal/serializers"
 	"gorm.io/gorm"
 )
 
 type AssetService interface {
 	GetAsset(aid uint) (*models.AssetResponse, error)
-	GetAssets(p int, pS int) ([]models.AssetResponse, error)
-	GetCharts(p int, pS int) ([]models.Chart, error)
-	GetAudiences(p int, pS int) ([]models.Audience, error)
-	GetInsights(p int, pS int) ([]models.Insight, error)
+	GetAssets(p int, pS int) (serializers.AssetsResponse, error)
+	GetCharts(p int, pS int) (serializers.ChartsResponse, error)
+	GetAudiences(p int, pS int) (serializers.AudienceResponse, error)
+	GetInsights(p int, pS int) (serializers.InsightResponse, error)
 	UpdateDescription(aId uint, d string) (*models.AssetResponse, error)
 }
 
@@ -26,12 +27,18 @@ func NewAssetService(db gorm.DB) (AssetService, error) {
 	return &assetService{db: db}, nil
 }
 
-func (as *assetService) GetAssets(p int, pS int) ([]models.AssetResponse, error) {
+func (as *assetService) GetAssets(p int, pS int) (serializers.AssetsResponse, error) {
 	var assets []models.Asset
 	var assetResponses []models.AssetResponse
+	pr := serializers.AssetsResponse{}
+	var count int64
+	pr.Assets = nil
+	pr.TotalCount = 0
+
+	as.db.Model(&models.Asset{}).Count(&count)
 
 	if err := as.db.Scopes(helpers.Paginate(p, pS)).Find(&assets).Error; err != nil {
-		return nil, errors.New("something went wrong while fetching assets")
+		return pr, errors.New("something went wrong while fetching assets")
 	}
 
 	for _, asset := range assets {
@@ -39,45 +46,71 @@ func (as *assetService) GetAssets(p int, pS int) ([]models.AssetResponse, error)
 		result, err := helpers.AggregateAssetType(asset, as.db)
 
 		if err != nil {
-			return nil, err
+			return pr, err
 		}
 
 		assetResponse = *result
 
 		assetResponses = append(assetResponses, assetResponse)
 	}
-	return assetResponses, nil
+	pr.Assets = &assetResponses
+	pr.TotalCount = int(count)
+	return pr, nil
 }
 
-func (as *assetService) GetCharts(p int, pS int) ([]models.Chart, error) {
+func (as *assetService) GetCharts(p int, pS int) (serializers.ChartsResponse, error) {
 	var charts []models.Chart
+	pr := serializers.ChartsResponse{}
+	var count int64
+
+	pr.Charts = nil
+	pr.TotalCount = 0
+
+	as.db.Model(&models.Chart{}).Count(&count)
 
 	if err := as.db.Preload("Asset").Scopes(helpers.Paginate(p, pS)).Find(&charts).Error; err != nil {
-		return nil, errors.New("something went wrong while fetching charts")
+		return pr, errors.New("something went wrong while fetching charts")
 
 	}
-	return charts, nil
+	pr.Charts = &charts
+	pr.TotalCount = int(count)
+	return pr, nil
 }
 
-func (as *assetService) GetAudiences(p int, pS int) ([]models.Audience, error) {
+func (as *assetService) GetAudiences(p int, pS int) (serializers.AudienceResponse, error) {
 	var audiences []models.Audience
+	var count int64
+	pr := serializers.AudienceResponse{}
+
+	as.db.Model(&models.Audience{}).Count(&count)
 
 	if err := as.db.Preload("Asset").Scopes(helpers.Paginate(p, pS)).Find(&audiences).Error; err != nil {
-		return nil, errors.New("something went wrong while fetching audiences")
+		return pr, errors.New("something went wrong while fetching audiences")
 
 	}
 
-	return audiences, nil
+	pr.Audiences = &audiences
+	pr.TotalCount = int(count)
+
+	return pr, nil
 }
 
-func (as *assetService) GetInsights(p int, pS int) ([]models.Insight, error) {
+func (as *assetService) GetInsights(p int, pS int) (serializers.InsightResponse, error) {
 	var insights []models.Insight
+	var count int64
+	pr := serializers.InsightResponse{}
+
+	as.db.Model(&models.Insight{}).Count(&count)
 
 	if err := as.db.Preload("Asset").Scopes(helpers.Paginate(p, pS)).Find(&insights).Error; err != nil {
-		return nil, errors.New("something went wrong while fetching insights")
+		return pr, errors.New("something went wrong while fetching insights")
 
 	}
-	return insights, nil
+
+	pr.Insights = &insights
+	pr.TotalCount = int(count)
+
+	return pr, nil
 }
 
 func (as *assetService) UpdateDescription(aId uint, d string) (*models.AssetResponse, error) {

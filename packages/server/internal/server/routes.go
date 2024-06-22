@@ -6,11 +6,16 @@ import (
 	"github.com/alexandros-georgantas/platform-go-challenge/internal/controllers"
 	"github.com/alexandros-georgantas/platform-go-challenge/internal/middlewares"
 	"github.com/alexandros-georgantas/platform-go-challenge/internal/services"
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 )
 
 func (s *Server) RegisterRoutes() http.Handler {
 	r := gin.Default()
+	config := cors.DefaultConfig()
+	config.AddAllowHeaders("Authorization")
+	config.AllowOrigins = []string{"http://localhost:4000"}
+	r.Use(cors.New(config))
 
 	// SERVICES
 	userService, _ := services.NewUserService(*s.db)
@@ -37,12 +42,13 @@ func (s *Server) RegisterRoutes() http.Handler {
 
 	// API PROTECTED ROUTES
 	{
-		v1.GET("/assets", assetController.GetAssets)                                         //get all assets
-		v1.GET("/assets/:assetId", assetController.GetAsset)                                 //get asset's details
-		v1.PATCH("/assets/:assetId", assetController.UpdateDescription)                      //patch asset's description
-		v1.GET("/assets/charts", assetController.GetCharts)                                  //get charts
-		v1.GET("/assets/insights", assetController.GetInsights)                              //get insights
-		v1.GET("/assets/audiences", assetController.GetAudiences)                            //get audiences
+		v1.GET("/assets", assetController.GetAssets)                    //get all assets
+		v1.GET("/assets/:assetId", assetController.GetAsset)            //get asset's details
+		v1.PATCH("/assets/:assetId", assetController.UpdateDescription) //patch asset's description
+		v1.GET("/assets/charts", assetController.GetCharts)             //get charts
+		v1.GET("/assets/insights", assetController.GetInsights)         //get insights
+		v1.GET("/assets/audiences", assetController.GetAudiences)       //get audiences
+		v1.GET("/users", userController.GetCurrentUser)
 		v1.GET("/users/:userId/favorites/:favoriteId", favoriteController.GetFavorite)       //get user's favorite details
 		v1.GET("/users/:userId/favorites", favoriteController.GetFavorites)                  //get user's favorites
 		v1.POST("/users/:userId/favorites", favoriteController.AddToFavorites)               //set user's favorite

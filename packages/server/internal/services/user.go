@@ -2,6 +2,7 @@ package services
 
 import (
 	"errors"
+	"fmt"
 
 	"github.com/alexandros-georgantas/platform-go-challenge/internal/models"
 	"github.com/alexandros-georgantas/platform-go-challenge/internal/serializers"
@@ -12,6 +13,7 @@ import (
 type UserService interface {
 	SignUp(su *serializers.SignUpUser) (*uint, error)
 	Login(uc *serializers.UserCredentials) (*string, error)
+	GetCurrentUser(uId uint) (*serializers.CurrentUserResponse, error)
 }
 
 type userService struct {
@@ -55,4 +57,23 @@ func (us *userService) Login(uc *serializers.UserCredentials) (*string, error) {
 	}
 
 	return token, nil
+}
+
+func (us *userService) GetCurrentUser(uId uint) (*serializers.CurrentUserResponse, error) {
+
+	u := models.User{}
+	cu := serializers.CurrentUserResponse{}
+	fmt.Println("aaaaa", uId)
+	dbErr := us.db.First(&u, uId).Error
+
+	if errors.Is(dbErr, gorm.ErrRecordNotFound) {
+		return nil, errors.New("invalid user id")
+	}
+
+	cu.Email = u.Email
+	cu.ID = u.ID
+	cu.GivenName = u.GivenName
+	cu.Surname = u.Surname
+
+	return &cu, nil
 }
