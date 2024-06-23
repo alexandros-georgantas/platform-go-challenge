@@ -30,7 +30,6 @@ func (fc *favoriteController) AddToFavorites(c *gin.Context) {
 	pUId, _ := strconv.Atoi(c.Param("userId"))
 	cUId := c.MustGet("userId").(int)
 	bErr := c.BindJSON(&aF)
-
 	if pUId != cUId {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "invalid token action"})
 		return
@@ -39,10 +38,20 @@ func (fc *favoriteController) AddToFavorites(c *gin.Context) {
 	favorite, aErr := fc.favoriteService.AddToFavorites(uint(pUId), uint(aF.ID))
 
 	if aErr != nil || bErr != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"error": fmt.Errorf("something went wrong while adding asset with id %v to favorites", aF.ID).Error(),
-		})
-		return
+		em := aErr.Error()
+
+		if em == "ERROR: duplicate key value violates unique constraint \"user_asset\" (SQLSTATE 23505)" {
+
+			c.JSON(http.StatusConflict, gin.H{
+				"error": em,
+			})
+			return
+		} else {
+			c.JSON(http.StatusInternalServerError, gin.H{
+				"error": em,
+			})
+			return
+		}
 	}
 
 	c.JSON(http.StatusOK, gin.H{

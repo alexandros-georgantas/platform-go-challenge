@@ -2,6 +2,7 @@ package server
 
 import (
 	"net/http"
+	"os"
 
 	"github.com/alexandros-georgantas/platform-go-challenge/internal/controllers"
 	"github.com/alexandros-georgantas/platform-go-challenge/internal/middlewares"
@@ -12,9 +13,10 @@ import (
 
 func (s *Server) RegisterRoutes() http.Handler {
 	r := gin.Default()
+	cURL := os.Getenv("CLIENT_URL")
 	config := cors.DefaultConfig()
 	config.AddAllowHeaders("Authorization")
-	config.AllowOrigins = []string{"http://localhost:4000"}
+	config.AllowOrigins = []string{cURL}
 	r.Use(cors.New(config))
 
 	// SERVICES

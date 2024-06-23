@@ -32,8 +32,9 @@ func (ac *assetController) GetAssets(c *gin.Context) {
 	q := c.Request.URL.Query()
 	page, _ := strconv.Atoi(q.Get("page"))
 	pageSize, _ := strconv.Atoi(q.Get("limit"))
+	t := q.Get("type")
 
-	assets, err := ac.assetService.GetAssets(page, pageSize)
+	assets, err := ac.assetService.GetAssets(page, pageSize, t)
 
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{

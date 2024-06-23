@@ -2,7 +2,6 @@ package services
 
 import (
 	"errors"
-	"fmt"
 
 	"github.com/alexandros-georgantas/platform-go-challenge/internal/models"
 	"github.com/alexandros-georgantas/platform-go-challenge/internal/serializers"
@@ -60,10 +59,9 @@ func (us *userService) Login(uc *serializers.UserCredentials) (*string, error) {
 }
 
 func (us *userService) GetCurrentUser(uId uint) (*serializers.CurrentUserResponse, error) {
-
 	u := models.User{}
 	cu := serializers.CurrentUserResponse{}
-	fmt.Println("aaaaa", uId)
+
 	dbErr := us.db.First(&u, uId).Error
 
 	if errors.Is(dbErr, gorm.ErrRecordNotFound) {

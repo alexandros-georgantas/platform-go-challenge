@@ -12,7 +12,7 @@ import (
 
 type AssetService interface {
 	GetAsset(aid uint) (*models.AssetResponse, error)
-	GetAssets(p int, pS int) (serializers.AssetsResponse, error)
+	GetAssets(p int, pS int, t string) (serializers.AssetsResponse, error)
 	GetCharts(p int, pS int) (serializers.ChartsResponse, error)
 	GetAudiences(p int, pS int) (serializers.AudienceResponse, error)
 	GetInsights(p int, pS int) (serializers.InsightResponse, error)
@@ -27,7 +27,7 @@ func NewAssetService(db gorm.DB) (AssetService, error) {
 	return &assetService{db: db}, nil
 }
 
-func (as *assetService) GetAssets(p int, pS int) (serializers.AssetsResponse, error) {
+func (as *assetService) GetAssets(p int, pS int, t string) (serializers.AssetsResponse, error) {
 	var assets []models.Asset
 	var assetResponses []models.AssetResponse
 	pr := serializers.AssetsResponse{}
@@ -35,10 +35,16 @@ func (as *assetService) GetAssets(p int, pS int) (serializers.AssetsResponse, er
 	pr.Assets = nil
 	pr.TotalCount = 0
 
-	as.db.Model(&models.Asset{}).Count(&count)
-
-	if err := as.db.Scopes(helpers.Paginate(p, pS)).Find(&assets).Error; err != nil {
-		return pr, errors.New("something went wrong while fetching assets")
+	if t == "" {
+		as.db.Model(&models.Asset{}).Count(&count)
+		if err := as.db.Order("id asc").Order("updated_at desc").Scopes(helpers.Paginate(p, pS)).Find(&assets).Error; err != nil {
+			return pr, errors.New("something went wrong while fetching assets")
+		}
+	} else {
+		as.db.Where("related_type = ?", t).Model(&models.Asset{}).Count(&count)
+		if err := as.db.Where("related_type = ?", t).Order("id asc").Order("updated_at desc").Scopes(helpers.Paginate(p, pS)).Find(&assets).Error; err != nil {
+			return pr, errors.New("something went wrong while fetching assets")
+		}
 	}
 
 	for _, asset := range assets {
@@ -125,6 +131,8 @@ func (as *assetService) UpdateDescription(aId uint, d string) (*models.AssetResp
 	}
 
 	result, aErr := helpers.AggregateAssetType(asset, as.db)
+
+	// TODO: Here invalidation of user's favorites cache should take place
 
 	if aErr != nil {
 		return nil, aErr

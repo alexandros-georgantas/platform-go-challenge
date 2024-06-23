@@ -95,8 +95,7 @@ export const Application = () => {
   const activeItem = pathname.replace(/^\/+/g, '')
 
   const items = generateMenuItems(currentUser, auth.logout)
-  console.log('1', loadingUser)
-  console.log('2', currentUser)
+
   return (
     <App style={{ height: '100vh' }}>
       {loadingUser ? (

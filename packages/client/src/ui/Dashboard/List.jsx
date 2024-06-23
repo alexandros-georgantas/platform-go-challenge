@@ -11,7 +11,15 @@ const StyledList = styled(AntList)`
   }
 `
 
-const List = ({ items, isLoading, paginationHandler, pageSize }) => {
+const List = ({
+  items,
+  isLoading,
+  paginationHandler,
+  pageSize,
+  mainActionHandler,
+  secondaryActionHandler,
+  shouldDisplayRemove,
+}) => {
   return (
     <StyledList
       itemLayout="vertical"
@@ -24,8 +32,15 @@ const List = ({ items, isLoading, paginationHandler, pageSize }) => {
         pageSize: pageSize,
         align: 'center',
       }}
-      dataSource={items?.items}
-      renderItem={(item) => <ListItem item={item} />}
+      dataSource={items?.items || []}
+      renderItem={(item) => (
+        <ListItem
+          mainActionHandler={mainActionHandler}
+          secondaryActionHandler={secondaryActionHandler}
+          shouldDisplayRemove={shouldDisplayRemove}
+          item={item}
+        />
+      )}
     />
   )
 }

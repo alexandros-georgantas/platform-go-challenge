@@ -26,6 +26,6 @@ type AssetsResponse struct {
 }
 
 type FavoritesResponse struct {
-	Favorites  *[]models.AssetResponse `json:"items"`
-	TotalCount int                     `json:"totalCount"`
+	Favorites  *[]models.FavoritesResponse `json:"items"`
+	TotalCount int                         `json:"totalCount"`
 }

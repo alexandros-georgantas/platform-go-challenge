@@ -41,9 +41,7 @@ export const CurrentUserProvider = ({ children }) => {
       retries: false,
     }
   )
-  console.log('token', token)
-  console.log('token2', !!token)
-  console.log('data', data)
+
   useEffect(() => {
     if (!loadingUser && data) {
       const { currentUser } = data
